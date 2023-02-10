@@ -1,0 +1,46 @@
+Vagrant.configure(2) do |config|
+
+	config.vm.box = "bento/ubuntu-16.04"
+
+  # general variables
+  MASTER_NAME = "nouhaddoS"
+  MASTER_IP = "192.168.56.110"
+
+  WORKER_NAME = "nouhaddoSW"
+  WORKER_IP = "192.168.56.111"
+
+	config.vm.define MASTER_NAME do |master|
+		master.vm.hostname = MASTER_NAME
+		master.vm.network "private_network", ip: MASTER_IP
+		master.vm.provider "virtualbox" do |vb|
+      vb.cpus = 1
+      vb.memory = 512
+      vb.name = MASTER_NAME
+      # boost networking performance
+			vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+		end
+    master.vm.provision "shell", inline: <<-SHELL
+      sudo apt update
+      curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip=#{MASTER_IP} --flannel-iface=eth1 --write-kubeconfig-mode 644" sh -
+      sudo cp /var/lib/rancher/k3s/server/node-token /vagrant/
+    SHELL
+	end
+
+	config.vm.define WORKER_NAME do |worker|
+		worker.vm.hostname = WORKER_NAME
+		worker.vm.network "private_network", ip: WORKER_IP
+		worker.vm.provider "virtualbox" do |vb|
+      vb.cpus = 1
+      vb.memory = 512
+      vb.name = WORKER_NAME
+			vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+		end
+    worker.vm.provision "shell", inline: <<-SHELL
+      sudo apt update
+      curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip=#{WORKER_IP} --flannel-iface=eth1" K3S_URL=https://#{MASTER_IP}:6443 K3S_TOKEN=$(cat /vagrant/node-token) sh -
+    SHELL
+	end
+end
+
