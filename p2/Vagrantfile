@@ -21,6 +21,7 @@ Vagrant.configure(2) do |config|
     master.vm.provision "shell", inline: <<-SHELL
       sudo apt-get update
       curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip=#{MASTER_IP} --flannel-iface=eth1 --write-kubeconfig-mode 644" sh -
+      kubectl apply -f /vagrant/
     SHELL
 	end
 
