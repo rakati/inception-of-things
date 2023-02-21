@@ -15,4 +15,4 @@
 - [ ] ...
 
 ## Ressourses
-- link [example link](https://github.com/rakati/inception-of-things/edit/main/README.md)
+- https://www.youtube.com/watch?v=JLnjMCRLcCo&list=PLn6POgpklwWqfzaosSgX2XEKpse5VY2v5&index=50
