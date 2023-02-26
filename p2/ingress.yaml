@@ -4,13 +4,22 @@ metadata:
   name: hello-ingress
   annotations:
     kubernetes.io/ingress.class: "traefik"
-    nginx.ingress.kubernetes.io/default-backend: /$3
+<<<<<<< HEAD
+    # nginx.ingress.kubernetes.io/default-backend: default-backend
+spec:
+  defaultBackend:
+    service:
+      name: default-backend
+      port:
+        number: 80
+=======
 spec:
   defaultBackend:
       service:
         name: default-backend
         port:
           number: 80
+>>>>>>> fea322a167eabee88ef38fac8dcef9a241e34759
   rules:
   - host: app1.com
     http:
@@ -43,11 +52,19 @@ spec:
             port:
               number: 80
   - http:
+<<<<<<< HEAD
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+=======
         paths:
         - path: /
           pathType: Prefix
           backend:
             service:
+>>>>>>> fea322a167eabee88ef38fac8dcef9a241e34759
               name: app-three
               port:
                 number: 80
