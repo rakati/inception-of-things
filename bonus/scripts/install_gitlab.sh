@@ -13,4 +13,3 @@ export LC_ALL=en_US.UTF-8
 sudo apt install -y gitlab-ce
 sudo gitlab-ctl reconfigure
 echo "===================[> Gitlab installation successfully done"
-kubectl config view --raw  -o=jsonpath='{.clusters[0].cluster.certificate-authority-data}' | base64 --decode

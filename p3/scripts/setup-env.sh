@@ -20,12 +20,10 @@ apt-cache policy docker-ce
 apt-get install -y docker-ce docker-ce-cli containerd.io
 
 ## docker without sudo
-newgrp docker
+chmod 666 /var/run/docker.sock
 
 # Setup k3s
-curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-chmod +x ./kubectl
-mv ./kubectl /usr/local/bin/kubectl
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--flannel-iface=eth0 --write-kubeconfig-mode 644" sh -
 
 # Setup k3d
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
@@ -37,16 +35,15 @@ k3d cluster create mycluster -p 8888:30014
 kubectl create namespace dev
 kubectl create namespace argocd
 
-kubectl apply -f app.yaml
-
 # install ArgoCD
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 # argocd configuration
 kubectl apply -f argocd.yaml
 
-# get password
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+while ! kubectl -n argocd get secret argocd-initial-admin-secret; do echo "waiting for secret"; sleep 1; done
 
-# Change the argocd-server service type to LoadBalancer:
 nohup kubectl port-forward --address 0.0.0.0 svc/argocd-server -n argocd 8080:443 2>&1 &
+# get password
+echo -n "\n\nPassword is: "
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
